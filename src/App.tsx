@@ -16,12 +16,12 @@ import { Header } from './components/Header'
 
 export const App: React.FunctionComponent<{}> = () => {
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} alignItems="center" justifyContent="center">
       <Router>
         <Grid item xs={12}>
           <Header />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={5} sx={{ textAlign: 'center' }}>
           <Routes>
             <Route path="/" element={<Homepage />} />
             <Route path="/races" element={<RacesPage />} />

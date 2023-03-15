@@ -1,0 +1,29 @@
+{
+    "races": [
+        {
+            "id": "1",
+            "name": "Waun Fach",
+            "distance": "7 Miles",
+            "checkpoints": [
+                {
+                  "id": 1,
+                  "position": [51.961238145355736, -3.204774894623032],
+                  "isStart": true,
+                  "isFinish": false
+                },
+                {
+                  "id": 2,
+                  "position": [51.96316057603814, -3.1431943999999996],
+                  "isStart": false,
+                  "isFinish": false
+                },
+                {
+                  "id": 3,
+                  "position": [51.96336101220235, -3.1965432331547943],
+                  "isStart": false,
+                  "isFinish": true
+                }
+              ]
+        }
+    ]
+}

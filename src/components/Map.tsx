@@ -7,6 +7,8 @@ import {
   Marker
 } from 'react-leaflet'
 import Dayjs from 'dayjs'
+import AppBar from '@mui/material/AppBar'
+import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 
 import { generateIcon } from '../icons'
@@ -40,6 +42,29 @@ const Map: React.FunctionComponent<Props> = ({ checkpoints, handleFinish }) => {
    */
   const handlePositionUpdate = (position: GeolocationPosition): void => {
     setCurrentPosition([position.coords.latitude, position.coords.longitude])
+  }
+
+  useEffect(() => {
+    /**
+     * Tracks the elapsed time a user has been running for. Sets up a position watcher that allows us to listen for position changes in the app.
+     *
+     * Clears down timer and position watcher when this component dismounts.
+     */
+    const interval = setInterval(() => {
+      const currentTime = new Date().valueOf()
+      setElapsedTime(Dayjs(currentTime - startTime).format('mm:ss'))
+    }, 1000)
+    const positionWatcher = navigator.geolocation.watchPosition(handlePositionUpdate)
+    return () => {
+      clearInterval(interval)
+      navigator.geolocation.clearWatch(positionWatcher)
+    }
+  }, [])
+
+  /**
+   * Check if a users new position is a checkpoint they have not previously visited and updates the list of visited checkpoints if so.
+   */
+  useEffect(() => {
     checkpoints.forEach((checkpoint) => {
       if (
         checkpoint.position[0] === currentPosition[0] &&
@@ -47,27 +72,18 @@ const Map: React.FunctionComponent<Props> = ({ checkpoints, handleFinish }) => {
         !state.visitedCheckpoints.includes(checkpoint.id)
       ) {
         dispatch({ type: ActionTypes.Visit, payload: checkpoint })
-        if (checkpoints.length === state.visitedCheckpoints.length) {
-          handleFinish(elapsedTime)
-        }
       }
     })
-  }
+  }, [currentPosition])
 
-  navigator.geolocation.watchPosition(handlePositionUpdate)
-
+  /**
+   * Checks if a user has completed the course and calls handleFinish if they have.
+   */
   useEffect(() => {
-    /**
-     * Tracks the elapsed time a user has been running for.
-     */
-    const interval = setInterval(() => {
-      const currentTime = new Date().valueOf()
-      setElapsedTime(Dayjs(currentTime - startTime).format('mm:ss'))
-    }, 1000)
-    return () => {
-      clearInterval(interval)
+    if (state.visitedCheckpoints.length === checkpoints.length) {
+      handleFinish(elapsedTime)
     }
-  }, [])
+  }, [state.visitedCheckpoints])
 
   return (
     <div style={{ height: '1000px', width: '100%' }}>
@@ -112,7 +128,11 @@ const Map: React.FunctionComponent<Props> = ({ checkpoints, handleFinish }) => {
           })}
           <Marker position={currentPosition} />
         </MapContainer>
-        <Typography variant="h4">Elapsed Time: {elapsedTime}</Typography>
+        <AppBar position="fixed" sx={{ top: 'auto', bottom: 0 }}>
+          <Toolbar>
+            <Typography variant="h4" sx={{ margin: 'auto' }}>Elapsed Time: {elapsedTime}</Typography>
+          </Toolbar>
+        </AppBar>
       </>
     </div>
   )
